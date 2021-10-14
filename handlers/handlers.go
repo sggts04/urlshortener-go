@@ -14,6 +14,7 @@ func ServeFrontend(c *gin.Context) {
 func RegisterLongURL(c *gin.Context) {
 	longURL := c.PostForm("longURL")
 	if longURL == "" {
+		// Long URL not specified
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "long url not specified"})
 		return
 	}
@@ -23,8 +24,10 @@ func RegisterLongURL(c *gin.Context) {
 
 	if err != nil {
 		if err.Error() == "custom id already exists" {
+			// Custom ID collision
 			c.IndentedJSON(http.StatusConflict, gin.H{"message": err.Error()})
 		} else {
+			// ID couldn't be generated.
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		}
 		return
@@ -38,6 +41,7 @@ func RedirectToLongURL(c *gin.Context) {
 
 	longURL, err := data.GetLongURL(id)
 	if err != nil {
+		// ID doesn't exist
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 	}
 
