@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/sggts04/urlshortener-go/data"
 	"github.com/sggts04/urlshortener-go/handlers"
 )
 
@@ -29,9 +30,14 @@ func main() {
 	}
 
 	PORT := os.Getenv("PORT")
-	// MONGO_URL := os.Getenv("MONGO_URL")
+	MONGO_URL := os.Getenv("MONGO_URL")
+
+	err = data.InitDatabaseConnection(MONGO_URL)
+	if err != nil {
+		log.Fatal("Coudn't connect to database")
+	}
+	defer data.DisconnectDatabase()
 
 	service := NewURLShorteningService()
-
 	service.Run("localhost:" + PORT)
 }
