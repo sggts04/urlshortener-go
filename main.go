@@ -13,6 +13,9 @@ import (
 func NewURLShorteningService() *gin.Engine {
 	router := gin.Default()
 
+	// Serve Static Files
+	router.Static("/static", "./static")
+	router.LoadHTMLGlob("templates/*.html")
 	// Serve Frontend
 	router.GET("/", handlers.ServeFrontend)
 	// Register Long URL: Generate Short URL or Save Custom URL

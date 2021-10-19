@@ -8,7 +8,7 @@ import (
 )
 
 func ServeFrontend(c *gin.Context) {
-	// TODO
+	c.HTML(http.StatusOK, "index.html", nil)
 }
 
 func RegisterLongURL(c *gin.Context) {
