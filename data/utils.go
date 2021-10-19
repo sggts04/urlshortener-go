@@ -13,10 +13,7 @@ type URL struct {
 	longurl string
 }
 
-var urls = map[string]string{}
-
 func GetLongURL(id string) (string, error) {
-
 	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
 
 	var res URL
@@ -39,19 +36,40 @@ func StoreLongURL(longURL string, customId string) (string, error) {
 		// ID couldn't be generated.
 		return "", errors.New("short url couldn't be generated")
 	}
-	if _, ok := urls[id]; ok {
+
+	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
+
+	var res URL
+	err = row.Scan(&res._id, &res.urlid, &res.longurl)
+	if err == nil {
 		// ID collision, it has already been generated and stored.
 		return StoreLongURL(longURL, customId)
+	} else if err != sql.ErrNoRows {
+		return "", errors.New("couldn't parse database result")
+	} else {
+		_, err := db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", id, longURL)
+		if err != nil {
+			return "", errors.New("couldn't insert into database")
+		}
+		return id, nil
 	}
-	urls[id] = longURL
-	return id, nil
 }
 
 func StoreCustomID(longURL string, customId string) (string, error) {
-	if _, ok := urls[customId]; ok {
+	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", customId)
+
+	var res URL
+	err := row.Scan(&res._id, &res.urlid, &res.longurl)
+	if err == nil {
 		// ID collision, customId has already been stored.
 		return "", errors.New("custom id already exists")
+	} else if err != sql.ErrNoRows {
+		return "", errors.New("couldn't parse database result")
+	} else {
+		_, err := db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", customId, longURL)
+		if err != nil {
+			return "", errors.New("couldn't insert into database")
+		}
+		return customId, nil
 	}
-	urls[customId] = longURL
-	return customId, nil
 }
