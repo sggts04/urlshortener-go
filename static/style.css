@@ -54,24 +54,38 @@ input[type=text]:focus {
     width: 90%;
 }
 
-/*
-element.style {
-    box-sizing: content-box;
-    width: 2px;
-    background: 0px center;
-    border: 0px;
-    font-size: inherit;
-    opacity: 1;
-    outline: 0px;
-    padding: 0px;
-    color: inherit;
+@media (max-width: 750px) {
+    .heading {
+        font-size: 60px;
+    }
+
+    input[type=text] {
+        font-size: 1.3em;
+        height: 45px;
+        padding: 9px;
+    }
 }
-.css-u1juea input {
-    font: inherit;
-    letter-spacing: 0.35px;
-    margin-left: 0;
-    overflow: visible;
-    padding-left: 6px;
-    width: 365px!important;
+
+@media (max-width: 565px) {
+    .heading {
+        font-size: 40px;
+    }
+
+    input[type=text] {
+        font-size: 1em;
+        height: 40px;
+        padding: 8px;
+    }
 }
-*/
+
+@media (max-width: 425px) {
+    .heading {
+        font-size: 30px;
+    }
+
+    input[type=text] {
+        font-size: 0.9em;
+        height: 35px;
+        padding: 7px;
+    }
+}
