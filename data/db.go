@@ -1,92 +1,34 @@
 package data
 
 import (
-	"context"
-	"errors"
+	"database/sql"
 	"log"
-	"time"
 
-	gonanoid "github.com/matoous/go-nanoid/v2"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/go-sql-driver/mysql"
 )
 
-type Database struct {
-	client *mongo.Client
-	ctx    context.Context
-	cancel context.CancelFunc
-}
+var db *sql.DB
 
-var DB Database
-
-func InitDatabaseConnection(connectionURI string) error {
-	client, err := mongo.NewClient(options.Client().ApplyURI(connectionURI))
+func InitDatabaseConnection(MYSQL_USER string, MYSQL_PASS string, MYSQL_ADDR string, MYSQL_DB string) error {
+	cfg := mysql.Config{
+		User:                 MYSQL_USER,
+		Passwd:               MYSQL_PASS,
+		Net:                  "tcp",
+		Addr:                 MYSQL_ADDR,
+		DBName:               MYSQL_DB,
+		AllowNativePasswords: true,
+	}
+	// Get a database handle.
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Printf("Failed to create client: %v", err)
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Printf("Failed to connect to cluster: %v", err)
-		cancel()
-		return err
+	pingErr := db.Ping()
+	if pingErr != nil {
+		return pingErr
 	}
-
-	// Force a connection to verify our connection string
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		log.Printf("Failed to ping cluster: %v", err)
-		cancel()
-		return err
-	}
-
-	log.Println("Connected to MongoDB!")
-	DB = Database{client: client, ctx: ctx, cancel: cancel}
+	log.Println("Connected to MySQL!")
 	return nil
-}
-
-func DisconnectDatabase() {
-	DB.cancel()
-	DB.client.Disconnect(DB.ctx)
-	log.Println("Disconnected from MongoDB!")
-}
-
-var urls = map[string]string{}
-
-func GetLongURL(id string) (string, error) {
-	longURL, ok := urls[id]
-	if !ok {
-		// ID not found.
-		return "", errors.New("short url not found")
-	}
-	return longURL, nil
-}
-
-func StoreLongURL(longURL string, customId string) (string, error) {
-	if customId != "" {
-		return StoreCustomID(longURL, customId)
-	}
-	id, err := gonanoid.New(6)
-	if err != nil {
-		// ID couldn't be generated.
-		return "", errors.New("short url couldn't be generated")
-	}
-	if _, ok := urls[id]; ok {
-		// ID collision, it has already been generated and stored.
-		return StoreLongURL(longURL, customId)
-	}
-	urls[id] = longURL
-	return id, nil
-}
-
-func StoreCustomID(longURL string, customId string) (string, error) {
-	if _, ok := urls[customId]; ok {
-		// ID collision, customId has already been stored.
-		return "", errors.New("custom id already exists")
-	}
-	urls[customId] = longURL
-	return customId, nil
 }

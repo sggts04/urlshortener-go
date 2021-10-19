@@ -30,13 +30,16 @@ func main() {
 	}
 
 	PORT := os.Getenv("PORT")
-	MONGO_URL := os.Getenv("MONGO_URL")
 
-	err = data.InitDatabaseConnection(MONGO_URL)
+	MYSQL_USER := os.Getenv("MYSQL_USER")
+	MYSQL_PASS := os.Getenv("MYSQL_PASS")
+	MYSQL_ADDR := os.Getenv("MYSQL_ADDR")
+	MYSQL_DB := os.Getenv("MYSQL_DB")
+
+	err = data.InitDatabaseConnection(MYSQL_USER, MYSQL_PASS, MYSQL_ADDR, MYSQL_DB)
 	if err != nil {
 		log.Fatal("Coudn't connect to database")
 	}
-	defer data.DisconnectDatabase()
 
 	service := NewURLShorteningService()
 	service.Run("localhost:" + PORT)

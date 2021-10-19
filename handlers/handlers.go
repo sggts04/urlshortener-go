@@ -41,9 +41,14 @@ func RedirectToLongURL(c *gin.Context) {
 
 	longURL, err := data.GetLongURL(id)
 	if err != nil {
-		// ID doesn't exist
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		if err.Error() == "shorturl not found" {
+			// ID doesn't exist
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		} else {
+			// ID couldn't be generated.
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		}
+	} else {
+		c.Redirect(http.StatusMovedPermanently, longURL)
 	}
-
-	c.Redirect(http.StatusMovedPermanently, longURL)
 }
