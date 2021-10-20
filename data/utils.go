@@ -7,14 +7,22 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
+type Repository struct {
+	db *sql.DB
+}
+
 type URL struct {
 	_id     int
 	urlid   string
 	longurl string
 }
 
-func GetLongURL(id string) (string, error) {
-	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db: db}
+}
+
+func (r *Repository) GetLongURL(id string) (string, error) {
+	row := r.db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
 
 	var res URL
 	if err := row.Scan(&res._id, &res.urlid, &res.longurl); err != nil {
@@ -27,9 +35,9 @@ func GetLongURL(id string) (string, error) {
 	return res.longurl, nil
 }
 
-func StoreLongURL(longURL string, customId string) (string, error) {
+func (r *Repository) StoreLongURL(longURL string, customId string) (string, error) {
 	if customId != "" {
-		return StoreCustomID(longURL, customId)
+		return r.StoreCustomID(longURL, customId)
 	}
 	id, err := gonanoid.New(6)
 	if err != nil {
@@ -37,17 +45,17 @@ func StoreLongURL(longURL string, customId string) (string, error) {
 		return "", errors.New("short url couldn't be generated")
 	}
 
-	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
+	row := r.db.QueryRow("SELECT * FROM urls WHERE urlid = ?", id)
 
 	var res URL
 	err = row.Scan(&res._id, &res.urlid, &res.longurl)
 	if err == nil {
 		// ID collision, it has already been generated and stored.
-		return StoreLongURL(longURL, customId)
+		return r.StoreLongURL(longURL, customId)
 	} else if err != sql.ErrNoRows {
 		return "", errors.New("couldn't parse database result")
 	} else {
-		_, err := db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", id, longURL)
+		_, err := r.db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", id, longURL)
 		if err != nil {
 			return "", errors.New("couldn't insert into database")
 		}
@@ -55,8 +63,8 @@ func StoreLongURL(longURL string, customId string) (string, error) {
 	}
 }
 
-func StoreCustomID(longURL string, customId string) (string, error) {
-	row := db.QueryRow("SELECT * FROM urls WHERE urlid = ?", customId)
+func (r *Repository) StoreCustomID(longURL string, customId string) (string, error) {
+	row := r.db.QueryRow("SELECT * FROM urls WHERE urlid = ?", customId)
 
 	var res URL
 	err := row.Scan(&res._id, &res.urlid, &res.longurl)
@@ -66,7 +74,7 @@ func StoreCustomID(longURL string, customId string) (string, error) {
 	} else if err != sql.ErrNoRows {
 		return "", errors.New("couldn't parse database result")
 	} else {
-		_, err := db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", customId, longURL)
+		_, err := r.db.Exec("INSERT INTO urls (urlid, longurl) VALUES (?, ?)", customId, longURL)
 		if err != nil {
 			return "", errors.New("couldn't insert into database")
 		}

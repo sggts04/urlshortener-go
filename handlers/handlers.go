@@ -7,11 +7,19 @@ import (
 	"github.com/sggts04/urlshortener-go/data"
 )
 
-func ServeFrontend(c *gin.Context) {
+type URLShorteningHandler struct {
+	r *data.Repository
+}
+
+func NewURLShorteningHandler(r *data.Repository) *URLShorteningHandler {
+	return &URLShorteningHandler{r: r}
+}
+
+func (h *URLShorteningHandler) ServeFrontend(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", nil)
 }
 
-func RegisterLongURL(c *gin.Context) {
+func (h *URLShorteningHandler) RegisterLongURL(c *gin.Context) {
 	longURL := c.PostForm("longURL")
 	if longURL == "" {
 		// Long URL not specified
@@ -20,7 +28,7 @@ func RegisterLongURL(c *gin.Context) {
 	}
 
 	customId := c.PostForm("customId")
-	id, err := data.StoreLongURL(longURL, customId)
+	id, err := h.r.StoreLongURL(longURL, customId)
 
 	if err != nil {
 		if err.Error() == "custom id already exists" {
@@ -36,10 +44,10 @@ func RegisterLongURL(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, gin.H{"id": id})
 }
 
-func RedirectToLongURL(c *gin.Context) {
+func (h *URLShorteningHandler) RedirectToLongURL(c *gin.Context) {
 	id := c.Param("id")
 
-	longURL, err := data.GetLongURL(id)
+	longURL, err := h.r.GetLongURL(id)
 	if err != nil {
 		if err.Error() == "shorturl not found" {
 			// ID doesn't exist
