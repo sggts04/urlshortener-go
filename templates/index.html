@@ -20,9 +20,12 @@
             <img src="https://cdn0.iconfinder.com/data/icons/very-basic-android-l-lollipop-icon-pack/24/link-128.png"/>
             <p>URL Shortener</p>
         </div>
-        <div class="text">
+        <div class="text" id="form-res">
             <form id="form">
-                <input type="text" placeholder="Enter URL and Press Enter" name="longURL" id="longURL" class="url-input"/>
+                <input type="text" placeholder="Enter URL and Press Enter" name="longURL" id="longURL" class="url-input" required/>
+                <div class="custom-button" id="expand-click">+ Choose Custom Short URL</div>
+                <input type="text" placeholder="Enter Custom Short URL" name="customId" id="customId" class="custom-input"/>
+                <input type=submit style="display: none;">
             </form>
         </div>
     </div>

@@ -20,7 +20,11 @@ body {
     justify-content: center;
     font-size: 80px;
     font-weight: 700;
-    margin-bottom: 50px;
+    margin-bottom: 70px;
+}
+
+.heading > p {
+    margin: 10px;
 }
 
 input[type=text] {
@@ -46,12 +50,37 @@ input[type=text] {
     justify-content: center;
 }
 
+.custom-button {
+    margin-top: 10px;
+    padding: 5px;
+    font-weight: 300;
+    transition: 0.2s ease-in-out all;
+    border-radius: 5px;
+    background-color: rgba(192, 187, 187, 0.219);
+}
+
+.custom-button:hover {
+    background-color: rgba(179, 177, 177, 0.74);
+    cursor: pointer;
+}
+
 input[type=text]:hover {
     width: 90%;
 }
 
 input[type=text]:focus {
     width: 90%;
+}
+
+.custom-input {
+    display: none;
+    margin-top: 10px;
+    transition: 0.2s ease-in-out all;
+}
+
+.result {
+    text-align: center;
+    font-size: 1.5em;
 }
 
 @media (max-width: 750px) {
@@ -76,6 +105,10 @@ input[type=text]:focus {
         height: 40px;
         padding: 8px;
     }
+
+    .result {
+        font-size: 1.2em;
+    }
 }
 
 @media (max-width: 425px) {
@@ -87,5 +120,9 @@ input[type=text]:focus {
         font-size: 0.9em;
         height: 35px;
         padding: 7px;
+    }
+
+    .result {
+        font-size: 0.9em;
     }
 }
