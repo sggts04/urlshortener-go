@@ -9,14 +9,17 @@ This is a barebones URL Shortener implementation in Go using the Gin web framewo
 
 **Set up environment variables**
 
-Create a `.env` file in the root of the project and follow this format
+Copy over the `.env.example` to `.env` and fill out the variables
 
+`cp .env.example .env`
+
+Your `.env` would look *something like this*
 ```
-PORT=
-MYSQL_USER=
-MYSQL_PASS=
-MYSQL_ADDR=
-MYSQL_DB=
+PORT=8000
+MYSQL_USER=root
+MYSQL_PASS=password
+MYSQL_ADDR=localhost:3306
+MYSQL_DB=urlshortener
 ```
 
 The variables should be self-explanatory.
